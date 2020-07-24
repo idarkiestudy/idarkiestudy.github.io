@@ -152,6 +152,337 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-死锁和多线程/死锁和多线程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/24/%E6%AD%BB%E9%94%81%E5%92%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E6%AD%BB%E9%94%81%E5%92%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B/">死锁和多线程/死锁和多线程</a>
+    </h1>
+  
+
+        
+        <a href="/2020/07/24/%E6%AD%BB%E9%94%81%E5%92%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E6%AD%BB%E9%94%81%E5%92%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="archive-article-date">
+  	<time datetime="2020-07-24T09:59:11.524Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-24</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="操作系统"><a href="#操作系统" class="headerlink" title="操作系统"></a>操作系统</h1><h2 id="3-1-死锁"><a href="#3-1-死锁" class="headerlink" title="3.1 死锁"></a>3.1 死锁</h2><p>所谓死锁<DeadLock>：是指两个或两个以上的进程在执行过程中，因争夺资源而造成的一种互相等待的现象，若无外力作用，它们都将无法推进下去，此时称系统处于死锁状态或系统产生了死锁，这些永远在相互等待的进程成为死锁进程。</p>
+<p><strong>案例</strong>：在线程A持有锁left并想获得锁right的同时，线程B持有锁right并尝试获得锁left，那么这两个线程将永远地等待下去。</p>
+<p><img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/1595571374210.png" alt="1595571374210"></p>
+<p>==产生死锁的原因主要是==：</p>
+<ul>
+<li>因为系统资源不足</li>
+<li>进程运行推进的顺序不合适</li>
+<li>资源分配不当等</li>
+</ul>
+<p>如果系统资源充足，进程的资源请求都能够得到满足，死锁出现的可能性很低，否则就会因争夺有限的资源而陷入死锁。其次，进程运行推进顺序与速度不同，也可能产生死锁。</p>
+<p>==产生死锁的四个必要条件==：</p>
+<ul>
+<li>互斥条件：一个资源每次只能被一个进程使用。</li>
+<li>请求与保持条件：一个进程因请求资源而阻塞时，对已有的资源保持不放。。</li>
+<li>不剥夺条件：进程已获得的资源，在未使用完之前，不能强行剥夺。</li>
+<li>循环等待条件：若干进程之间形成一种头尾相接的循环等待资源关系。</li>
+</ul>
+<p>这四个条件是死锁的必要条件，只要系统发生死锁，这些条件必然成立，而只要上述条件之一不满足，就不会发生死锁。</p>
+<p><strong>死锁的解除与预防</strong></p>
+<p>理解了死锁的原因，尤其是产生死锁的四个条件，就可以最大可能地避免、预防和解除死锁。所以，在系统设计、进程调度等方面注意如何不让这四个必要条件成立，如何确定资源的合理分配算法，避免进程永久占据系统资源。此外，也要防止进程在处于等待状态的情况下占用资源,在系统运行过程中，对进程发出的每一个系统能够满足的资源申请进行动态检查，并根据检查结果决定是否分配资源，若分配后系统可能发生死锁，则不予分配，否则予以分配 。因此，对资源的分配要给予合理的规划。</p>
+<p><strong>解决死锁的基本方法</strong></p>
+<p>==一、预防死锁：==</p>
+<ul>
+<li>资源一次性分配：一次性分配所有资源，这样就不会再有请求了：（破坏请求条件）</li>
+<li>只要有一个资源得不到分配，也不给这个进程分配其他的资源：（破坏保持条件）</li>
+<li>可剥夺资源：即当某进程获得了部分资源，但得不到其它资源，则释放已占有的资源（破坏不可剥夺条件）</li>
+<li>资源有序分配：系统给每类资源赋予了一个编号，每一个进程按编号递增的顺序请求资源，释放则相反（破坏环路等待条件）</li>
+</ul>
+<p>==1、有序资源分配法==</p>
+<p>这种算法资源按某种规则系统中的所有资源统一编号（例如打印机为1、磁带机为2、磁盘为3、等等），申请是必须按以上的次序。系统要求申请进程：</p>
+<ul>
+<li><p>对它所必须使用的而且属于同一类的所有资源，必须一次申请完</p>
+</li>
+<li><p>在申请不同类资源时，必须按各类设备的编号一次申请。例如：进程PA，使用资源的顺序是R1、R2；进程PB，使用资源的顺序是R2，R1；若采用动态分配有可能形成环路条件，造成死锁。</p>
+<p>采用有序资源分配法：R1的编号为1，R2的编号为2；</p>
+<p>PA：申请的次序应是：R1，R2</p>
+<p>PB：申请的次序应是：R1，R2</p>
+<pre><code>如果必须获取多个锁，那么在设计的时候需要充分考虑不同线程之前获得锁的顺序。按照上面的例子，两个线程获得锁的时序图如下： </code></pre><p> <img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/20180922174807514.png" alt="img"> </p>
+<p>如果此时把获得锁的时序改成：</p>
+<p> <img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/20180922174829303.png" alt="img"> </p>
+<pre><code>那么死锁就永远不会发生。 针对两个特定的锁，开发者可以尝试按照锁对象的hashCode值大小的顺序，分别获得两个锁，这样锁总是会以特定的顺序获得锁，那么死锁也不会发生。问题变得更加复杂一些，如果此时有多个线程，都在竞争不同的锁，简单按照锁对象的hashCode进行排序（单纯按照hashCode顺序排序会出现“环路等待”），可能就无法满足要求了，这个时候开发者可以使用银行家算法，所有的锁都按照特定的顺序获取，同样可以防止死锁的发生，该算法在这里就不再赘述了，有兴趣的可以自行了解一下。</code></pre><p>这样就破坏了环路条件，避免了死锁的发生，即后来的申请者不可能会因为资源部分阻塞前面的申请者，可以保证最先申请的进程是绝对可以执行完的。</p>
+<p>==2、超时放弃==</p>
+<p>当使用synchronized关键词提供的内置锁时，只要线程没有获得锁，那么就会永远等待下去，然而Lock接口提供了boolean tryLock(long time, TimeUnit unit) throws InterruptedException方法，该方法可以按照固定时长等待锁，因此线程可以在获取锁超时以后，主动释放之前已经获得的所有的锁。通过这种方式，也可以很有效地避免死锁。 还是按照之前的例子，时序图如下：<br> <img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/20180922174924551.png" alt="img"> </p>
+</li>
+</ul>
+<p>==二、避免死锁==</p>
+<p>==银行家算法==</p>
+<p>避免死锁算法中最有代表性的算法是Dijkstra E.W于1968年提出的银行家算法：</p>
+<p>该算法需要检查申请者对资源的最大需求量，如果系统现存的各类资源可以满足申请者的请求，就满足申请者的请求。</p>
+<p>这样申请者就可很快完成其计算，然后释放它所占用的资源，从而保证了系统中的所有进程都能完成，所以可避免死锁的发生。</p>
+<p>==三、死锁排除的方法==</p>
+<ul>
+<li>撤销陷于死锁的全部进程</li>
+<li>逐个撤销陷于死锁的进程，知道死锁不存在；</li>
+<li>从陷于死锁的进程中逐个强迫放弃所占用的资源，直至死锁消失；</li>
+<li>从另外一些进程那里强行剥夺足够数量的资源分配给死锁进程，以解除死锁状态</li>
+</ul>
+<p>==四、检测死锁==</p>
+<p>1.首先为每个进程和每个资源指定一个唯一的号码</p>
+<p>2.然后建立资源分配表和进程等待表。</p>
+<p>==5、死锁==</p>
+<p><strong>1、Jstack命令</strong></p>
+<p>jstack是java虚拟机自带的一种堆栈跟踪工具。jstack用于打印出给定的java进程ID或core file或远程调试服务的Java堆栈信息。 Jstack工具可以用于生成java虚拟机当前时刻的线程快照。线程快照是当前java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是定位线程出现长时间停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等。 线程出现停顿的时候通过jstack来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做什么事情，或者等待什么资源。</p>
+<p><strong>2、JConsole工具</strong></p>
+<p>Jconsole是JDK自带的监控工具，在JDK/bin目录下可以找到。它用于连接正在运行的本地或者远程的JVM，对运行在Java应用程序的资源消耗和性能进行监控，并画出大量的图表，提供强大的可视化界面。而且本身占用的服务器内存很小，甚至可以说几乎不消耗。</p>
+<p>参考博文： <a href="https://blog.csdn.net/hd12370/article/details/82814348" target="_blank" rel="noopener">https://blog.csdn.net/hd12370/article/details/82814348</a> </p>
+<hr>
+<h2 id="Java与死锁"><a href="#Java与死锁" class="headerlink" title="Java与死锁"></a>Java与死锁</h2><p>在分布式开发中，锁是线程控制的重要途径。Java为此也提供了2种锁机制，synchronized和lock。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1. java中导致死锁的原因</span><br><span class="line">　　多个线程同时被阻塞，它们中的一个或者全部都在等待某个资源被释放，而该资源又被其他线程锁定，从而导致每一个线程都得等其它线程释放其锁定的资源，造成了所有线程都无法正常结束。这是从网上其他文档看到的死锁产生的四个必要条件：</span><br><span class="line">1、互斥使用，即当资源被一个线程使用(占有)时，别的线程不能使用</span><br><span class="line">2、不可抢占，资源请求者不能强制从资源占有者手中夺取资源，资源只能由资源占有者主动释放。</span><br><span class="line">3、请求和保持，即当资源请求者在请求其他的资源的同时保持对原有资源的占有。</span><br><span class="line">4、循环等待，即存在一个等待队列：P1占有P2的资源，P2占有P3的资源，P3占有P1的资源。这样就形成了一个等待环路。</span><br><span class="line">当上述四个条件都成立的时候，便形成死锁。当然，死锁的情况下如果打破上述任何一个条件，便可让死锁消失。下面用java代码来模拟一下死锁的产生。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 模拟两个资源</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeadLock</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object resource1 = <span class="keyword">new</span> Object();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object resource2 = <span class="keyword">new</span> Object();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 模拟线程1占用资源1并申请获得资源2的锁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread1</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Thread1 is running!"</span>);</span><br><span class="line">            <span class="keyword">synchronized</span> (DeadLock.resource1)&#123;</span><br><span class="line">                System.out.println(<span class="string">"Thread1 lock resource1!"</span>);</span><br><span class="line">                Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">                <span class="keyword">synchronized</span> (DeadLock.resource2)&#123;</span><br><span class="line">                    System.out.println(<span class="string">"Thread1 lock resource2!"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">"Thread1 release resource2!"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"Thread1 release resource1!"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"Thread1 is stop!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 模拟线程2占用资源2并申请获得资源1的锁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread2</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Thread2 is running!"</span>);</span><br><span class="line">            <span class="keyword">synchronized</span> (DeadLock.resource2)&#123;</span><br><span class="line">                System.out.println(<span class="string">"Thread2 lock resource2"</span>);</span><br><span class="line">                Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">                <span class="keyword">synchronized</span> (DeadLock.resource1)&#123;</span><br><span class="line">                    System.out.println(<span class="string">"Thread2 lock resource1"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">"Thread2 release resource1"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"Thread2 release resource2"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"Thread is stop!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 线程死循环的测试</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Threadtest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Thread1()).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Thread2()).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>最后输出结果是：</strong></p>
+<p>Thread1 is running<br>        Thread2 is running<br>        Thread1 lock resource1<br>        Thread2 lock resource2</p>
+<p>并且程序一直无法结束。这就是由于线程1占用了资源1，此时线程2已经占用资源2,。这个时候线程1想要使用资源2，线程2想要使用资源1,。两个线程都无法让步，导致程序死锁。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2.  java避免死锁的解决意见</span><br><span class="line"></span><br><span class="line">由上面的例子可以看出当线程在同步某个对象里，再去锁定另外一个对象的话，就和容易发生死锁的情况。最好是线程每次只锁定一个对象并且在锁定该对象的过程中不再去锁定其他的对象，这样就不会导致死锁了。比如将以上的线程改成下面这种写法就可以避免死锁：</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     *  java避免死锁的解决方案</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Thread1 is running!"</span>);</span><br><span class="line">            <span class="keyword">synchronized</span> (DeadLock.resource1)&#123;</span><br><span class="line">                System.out.println(<span class="string">"Thread1 lock resource1"</span>);</span><br><span class="line">                Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"Thread1 release resource1!"</span>);</span><br><span class="line">            <span class="keyword">synchronized</span>(DeadLock.resource2)&#123;</span><br><span class="line">                System.out.println(<span class="string">"Thread1 lock resource2"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"Thread1 release resource2"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"Thread1 is stop!"</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">但是有的时候业务需要同时去锁定两个对象，比如转账业务：A给B转账，需要同时锁定A、B两个账户。如果A、B相互同时转账的话就会出现死锁的情况。这时可以定义一个规则：锁定账户先后的规则。根据账户的某一个属性（比如id或者hasCode），判断锁定的先后。即每一次转账业务都是先锁定A再锁定B（或者先锁定B在锁定A），这样也不会导致死锁的发生。比如按照上面的例子，需要同时锁定两个资源，可以根据资源的hashcode值大小来判断先后锁定顺序。可以这样改造线程：</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread3</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"Thread3 is running!"</span>);</span><br><span class="line">            <span class="keyword">if</span> (DeadLock.resource1.hashCode()&gt;DeadLock.resource2.hashCode())&#123;</span><br><span class="line">                <span class="comment">//先锁定resource1</span></span><br><span class="line">                <span class="keyword">synchronized</span> (DeadLock.resource1)&#123;</span><br><span class="line">                    System.out.println(<span class="string">"Thread lock resource1"</span>);</span><br><span class="line">                    Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">                    <span class="keyword">synchronized</span> (DeadLock.resource2)&#123;</span><br><span class="line">                        System.out.println(<span class="string">"Thread lock resource2"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                    System.out.println(<span class="string">"Thread release resource1!"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">"Thread release resource2!"</span>);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//先锁定resource1</span></span><br><span class="line">                <span class="keyword">synchronized</span> (DeadLock.resource2)&#123;</span><br><span class="line">                    System.out.println(<span class="string">"Thread lock resource2"</span>);</span><br><span class="line">                    Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">                    <span class="keyword">synchronized</span> (DeadLock.resource1)&#123;</span><br><span class="line">                        System.out.println(<span class="string">"Thread lock resource1"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                    System.out.println(<span class="string">"Thread release resource2!"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">"Thread release resource1!"</span>);</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> <strong>总结：死锁常见于，线程在锁定对象还没释放时，又需要锁定另一个对象，并且此时该对象可能被另一个线程锁定。这种时候很容易导致死锁。因此在开发时需要慎重使用锁，尤其是需要注意尽量不要在锁里又加锁。</strong></p>
+<hr>
+<p><strong>一、synchronized和lock的用法区别</strong></p>
+<p>synchronized：在需要同步的对象中加入此控制，synchronized可以加在方法上，也可以加在特定代码块中，括号中表示需要锁的对象。</p>
+<p>lock：需要显示指定起始位置和终止位置。一般使用ReentrantLock类做为锁，多个线程中必须要使用一个ReentrantLock类做为对象才能保证锁的生效。且在加锁和解锁处需要通过lock()和unlock()显示指出。所以一般会在finally块中写unlock()以防死锁。</p>
+<p>用法区别比较简单，这里不赘述了，如果不懂的可以看看Java基本语法。</p>
+<p><strong>二、synchronized和lock性能区别</strong></p>
+<p>synchronized是托管给JVM执行的，而lock是java写的控制锁的代码。在Java1.5中，synchronize是性能低效的。因为这是一个重量级操作，需要调用操作接口，导致有可能加锁消耗的系统时间比加锁以外的操作还多。相比之下使用Java提供的Lock对象，性能更高一些。但是到了Java1.6，发生了变化。synchronize在语义上很清晰，可以进行很多优化，有适应自旋，锁消除，锁粗化，轻量级锁，偏向锁等等。导致在Java1.6上synchronize的性能并不比Lock差。官方也表示，他们也更支持synchronized，在未来的版本中还有优化余地。</p>
+<p>synchronized原始采用的是CPU悲观锁机制，即线程获得的是独占锁。独占锁意味着其他线程只能依靠阻塞来等待线程释放锁。而在CPU转换线程阻塞时会引起线程上下文切换，当有很多线程竞争锁的时候，会引起CPU频繁的上下文切换导致效率很低。</p>
+<p>Lock用的是乐观锁方式。所谓乐观锁就是，每次不加锁而是假设没有冲突而去完成某项操作，如果因为冲突失败就重试，直到成功为止。</p>
+<p><strong>三、synchronized的用法</strong></p>
+<p>==1、synchronized方法==</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 线程安全：</span></span><br><span class="line"><span class="comment"> * 1.可以在方法上添加synchronized关键字，它锁住的是对象的资源</span></span><br><span class="line"><span class="comment"> * 2.可以在代码块外添加synchronized关键字，锁住代码块中的资源</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeTest01</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SafeWeb12306 s = <span class="keyword">new</span> SafeWeb12306();</span><br><span class="line">        <span class="keyword">new</span> Thread(s,<span class="string">"小黑"</span>).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(s,<span class="string">"小赖"</span>).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(s,<span class="string">"小鬼"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SafeWeb12306</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> ticknums = <span class="number">100</span>;</span><br><span class="line">    <span class="keyword">boolean</span> flag = <span class="keyword">true</span>;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (flag)&#123;</span><br><span class="line">            test();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (ticknums&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">            flag = <span class="keyword">false</span>;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">200</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"===&gt;"</span>+ticknums--);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>==2、同步代码块==</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method3</span><span class="params">(SomeObject so)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span>(so)</span><br><span class="line">    &#123; </span><br><span class="line">       <span class="comment">//….. </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时，锁就是so这个对象，谁拿到这个锁谁就可以运行它所控制的那段代码。当有一个明确的对象作为锁时，就可以这样写程序，但当没有明确的对象作为锁，只是想让一段代码同步时，可以创建一个特殊的instance变量（它得是一个对象）来充当锁：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 线程安全：</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SynBlock02</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">                <span class="comment">//线程同步</span></span><br><span class="line">                <span class="keyword">synchronized</span> (list)&#123;</span><br><span class="line">                    list.add(Thread.currentThread().getName());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(list.size());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>四、Lock的用法</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Outputter1</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> Lock lock = <span class="keyword">new</span> ReentrantLock();<span class="comment">// 锁对象  </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">output</span><span class="params">(String name)</span> </span>&#123;  </span><br><span class="line">        <span class="comment">// TODO 线程输出方法  </span></span><br><span class="line">        lock.lock();<span class="comment">// 得到锁  </span></span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; name.length(); i++) &#123;  </span><br><span class="line">                System.out.print(name.charAt(i));  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;  </span><br><span class="line">            lock.unlock();<span class="comment">// 释放锁  </span></span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就实现了和sychronized一样的同步效果，需要注意的是，用sychronized修饰的方法或者语句块在代码执行完之后锁自动释放，而用Lock需要我们手动释放锁，所以为了保证锁最终被释放(发生异常情况)，要把互斥区放在try内，释放锁放在finally内。</p>
+<p>另外一个锁：读写锁(ReadWriteLock)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data</span> </span>&#123;      </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> data;<span class="comment">// 共享数据  </span></span><br><span class="line">    <span class="keyword">private</span> ReadWriteLock rwl = <span class="keyword">new</span> ReentrantReadWriteLock();     </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(<span class="keyword">int</span> data)</span> </span>&#123;  </span><br><span class="line">        rwl.writeLock().lock();<span class="comment">// 取到写锁  </span></span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">"准备写入数据"</span>);  </span><br><span class="line">            <span class="keyword">try</span> &#123;  </span><br><span class="line">                Thread.sleep(<span class="number">20</span>);  </span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">                e.printStackTrace();  </span><br><span class="line">            &#125;  </span><br><span class="line">            <span class="keyword">this</span>.data = data;  </span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">"写入"</span> + <span class="keyword">this</span>.data);  </span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;  </span><br><span class="line">            rwl.writeLock().unlock();<span class="comment">// 释放写锁  </span></span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;     </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">get</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        rwl.readLock().lock();<span class="comment">// 取到读锁  </span></span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">"准备读取数据"</span>);  </span><br><span class="line">            <span class="keyword">try</span> &#123;  </span><br><span class="line">                Thread.sleep(<span class="number">20</span>);  </span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">                e.printStackTrace();  </span><br><span class="line">            &#125;  </span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">"读取"</span> + <span class="keyword">this</span>.data);  </span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;  </span><br><span class="line">            rwl.readLock().unlock();<span class="comment">// 释放读锁  </span></span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-替换策略"><a href="#3-2-替换策略" class="headerlink" title="3.2 替换策略"></a>3.2 替换策略</h2><p>虚拟存储器页面置换算法</p>
+<p>1、最佳置换算法（Optimal）：一种理论的算法，选着淘汰的页面是以后一定不再使用的页面（理想化的），该算法无法实现，只能作为其他算法好坏的一个评价对比。</p>
+<p>2、先进先出（FIFO）算法：总是最先淘汰最先进去的页面，该算法容易实现。缺点：通常程序调入内存的先后顺序和程序执行的先后顺序不一致，导致缺页率高。</p>
+<p>3、最近最久未使用算法（LRU）：选择一个最近最久没有使用过的记录删除。</p>
+<p>4、最少使用算法（LFU）：在每个页面设置一个移位寄存器记录该页面的访问频率，最近时期最少使用的页面被淘汰</p>
+<h2 id="3-3-进程与线程"><a href="#3-3-进程与线程" class="headerlink" title="3.3 进程与线程"></a>3.3 进程与线程</h2><h3 id="3-3-1-进程间通信的几种方式"><a href="#3-3-1-进程间通信的几种方式" class="headerlink" title="3.3.1 进程间通信的几种方式"></a>3.3.1 进程间通信的几种方式</h3><p>管道( pipe )：管道是一种半双工的通信方式，数据只能单向流动，而且只能在具有亲缘关系的进程间使用。进程的亲缘关系通常是指父子进程关系。</p>
+<p>信号量( semophore ) ： 信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内s不同线程之间的同步手段。</p>
+<p>消息队列( message queue ) ： 消息队列是由消息的链表，存放在内核中并由消息队列标识符标识。消息队列克服了信号传递信息少、管道只能承载无格式字节流以及缓冲区大小受限等缺点。</p>
+<p>信号 ( signal ) ： 信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生。</p>
+<p>共享内存( shared memory ) ：共享内存就是映射一段能被其他进程所访问的内存，这段共享内存由一个进程创建，但多个进程都可以访问。共享内存是最快的 IPC 方式，它是针对其他进程间通信方式运行效率低而专门设计的。它往往与其他通信机制，如信号量，配合使用，来实现进程间的同步和通信。</p>
+<p>套接字( socket ) ： 套解字也是一种进程间通信机制，与其他通信机制不同的是，它可用于不同及其间的进程通信。</p>
+<p><strong>Android进程间通信的方法：</strong></p>
+<p>1、广播：在我们刚接触 Android 的时候，一定都学过广播是可以跨法式间通讯的，并且广播是连接Android组件的纽带。但广播在通讯中是属于单向的，例如：我们可以发送广播启动一个Service办事，不要指望会给我们反馈信息。</p>
+<p>2、Content Provider:可共享的数据存储器，严酷来说这并不算一种进程间的通讯。但在某些场景中确切是很不错的对象。</p>
+<p>3、AIDL:IDL是用来描述软件组件接口的一种计算机语言，而AIDL是Android为进程间通讯提出的解决方案。Android系统中的进程之间不能共享内存，AIDL采用服务器/客户端模式来发送和接收数据。</p>
+<h3 id="3-3-2-进程与线程的区别"><a href="#3-3-2-进程与线程的区别" class="headerlink" title="3.3.2 进程与线程的区别"></a>3.3.2 进程与线程的区别</h3><p><strong>1.进程的定义</strong></p>
+<p>进程是具有一定独立功能的程序关于某个数据集合上的一次运行活动，是系统进行资源分配和调度的一个独立单位。进程是程序的一次执行活动，是程序运行的实例，属于动态概念。<br>（注意：在Mac、Windows NT等采用微内核结构的操作系统中，进程只是资源分配的单位，而不再是调度运行的单位。在微内核系统中，真正调度运行的基本单位是线程。因此，实现并发功能的单位是线程。 ）<br>进程是系统进行资源分配的基本单位。</p>
+<p><strong>2.线程的定义</strong></p>
+<p>线程是进程的一个实体，是CPU调度和分派的基本单位，它是比进程更小的能独立运行的基本单位。<br>线程是CPU调度和程序执行的最小单位。</p>
+<p><strong>3.进程和线程的关系</strong></p>
+<p>(1)一个线程只能属于一个进程，而一个进程可以有多个线程，但至少有一个线程。<br>(2)资源分配给进程，同一进程的所有线程共享该进程的所有资源。<br>(3)处理机分给线程，即真正在处理机上运行的是线程。<br>(4)线程在执行过程中，需要协作同步。不同进程的线程间要利用消息通信的办法实现同步。<br>（5）线程有自己的堆栈和局部变量，但线程之间没有单独的地址空间，一个线程死掉就等于整个进程死掉，所以多进程的程序要比多线程的程序健壮，但在进程切换时，耗费资源较大，效率要差一些。但对于一些要求同时进行并且又要共享某些变量的并发操作，只能用线程，不能用进程。</p>
+<p><strong>4.进程与线程的区别</strong></p>
+<p>(1)调度：线程作为CUP调度和分配的基本单位，进程作为拥有资源的基本单位。<br>        (2)并发性：不仅进程之间可以并发执行，同一个进程的多个线程之间也可并发执行。<br>        (3)拥有资源：进程是拥有资源的一个独立单位，线程不拥有系统资源，但可以访问隶属于进程的资源。<br>        (4) 系统开销：在创建或撤消进程时，由于系统都要为之分配和回收资源，导致系统的开销明显大于创建或撤消线程时的开销。在进程切换时，耗费资源较大，效率要差一些。<br>        (5)健壮性：进程有独立的地址空间，一个进程崩溃后，在保护模式下不会对其它进程产生影响，而线程只是一个进程中的不同执行路径。线程有自己的堆栈和局部变量，但线程之间没有单独的地址空间，一个进程死掉就等于所有的线程死掉，所以多进程的程序要比多线程的程序健壮。进程间的crash不会相互影响，但是一个线程的crash会使整个进程都crash，其他线程也跟着都挂了。</p>
+<p>总的来讲：进程只是一些资源的集合，真正的程序执行都是线程来完成的，程序启动的时候操作系统就帮你创建了一个主线程。每个线程有自己的堆栈。</p>
+<p>Android在程序启动的时候，会我们分配一个主线程（UI线程），如果没有特殊处理，我们所有的操作都是在UI线程中完成的。</p>
+<h3 id="3-3-3-状态切换"><a href="#3-3-3-状态切换" class="headerlink" title="3.3.3 状态切换"></a>3.3.3 状态切换</h3><h4 id="3-3-3-1-进程的基本状态"><a href="#3-3-3-1-进程的基本状态" class="headerlink" title="3.3.3.1 进程的基本状态"></a>3.3.3.1 进程的基本状态</h4><p>进程经常讨论的基本状态为：就绪状态（Ready）、运行状态（Running）、阻塞状态（Blocked）。此外，还包括不常讨论的创建和结束。</p>
+<ul>
+<li><p>就绪状态：当进程已分配到除CPU以外的所有必要资源后，只要再获得CPU，便可立即执行，进程这时的状态称为就绪状态。在一个系统中处于就绪状态的进程可能有多个，通常将它们排成一个队列，称为就绪队列。</p>
+</li>
+<li><p>运行状态：进程已获得CPU，其程序正在执行。在单处理机系统中，只有一个进程处于执行状态； 在多处理机系统中，则有多个进程处于执行状态。</p>
+</li>
+<li><p>阻塞状态：正在执行的进程由于发生某事件而暂时无法继续执行时，便放弃处理机而处于暂停状态，亦即进程的执行受到阻塞，把这种暂停状态称为阻塞状态，有时也称为等待状态或封锁状态。致使进程阻塞的典型事件有：请求I/O，申请缓冲空间等。通常将这种处于阻塞状态的进程也排成一个队列。有的系统则根据阻塞原因的不同而把处于阻塞状态的进程排成多个队列。</p>
+</li>
+</ul>
+<p>三种状态的切换如下图所示：</p>
+<p><img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/1595575558677.png" alt="1595575558677"></p>
+<h4 id="3-3-3-2-线程的基本状态"><a href="#3-3-3-2-线程的基本状态" class="headerlink" title="3.3.3.2 线程的基本状态"></a>3.3.3.2 线程的基本状态</h4><p>线程的基本状态包括：派生，阻塞，激活，调度，结束。</p>
+<ul>
+<li><p>新建（New）：线程在进程内派生出来，它即可由进程派生，也可由线程派生。</p>
+</li>
+<li><p>阻塞（blocked）：线程运行过程中，可能由于各种原因进入阻塞状态：</p>
+</li>
+</ul>
+<p>① 线程通过调用sleep方法进入睡眠状态；<br>② 线程调用一个在I/O上被阻塞的操作，即该操作在输入输出操作完成之前不会返回到它的调用者；<br>③ 线程试图得到一个锁，而该锁正被其他线程持有；<br>④ 线程在等待某个触发条件；<br>所谓阻塞状态是正在运行的线程没有运行结束，暂时让出CPU，这时其他处于就绪状态的线程就可以获得CPU时间，进入运行状态。</p>
+<ul>
+<li><p>就绪（ready）：一个新创建的线程并不自动开始运行，要执行线程，必须调用线程的start()方法。当线程对象调用start()方法即启动了线程，start()方法创建线程运行的系统资源，并调度线程运行run()方法。当start()方法返回后，线程就处于就绪状态。处于就绪状态的线程并不一定立即运行run()方法，线程还必须同其他线程竞争CPU时间，只有获得CPU时间才可以运行线程</p>
+</li>
+<li><p>运行（running）：线程获得CPU时间后，它才进入运行状态，真正开始执行run()方法。</p>
+</li>
+<li><p>死亡（dead）：两个原因会导致线程死亡：</p>
+</li>
+</ul>
+<p>①run方法正常退出而自然死亡；</p>
+<p>②一个未捕获的异常终止了run方法而使线程猝死；</p>
+<p>五种状态的切换如下图所示：</p>
+<p><img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/1595575623827.png" alt="1595575623827"></p>
+<h4 id="3-3-3-3-挂起状态"><a href="#3-3-3-3-挂起状态" class="headerlink" title="3.3.3.3 挂起状态"></a>3.3.3.3 挂起状态</h4><p>在不少系统中进程只有上述三种状态，但在另一些系统中，又增加了一些新状态，最重要的是挂起状态。引入挂起状态的原因有：</p>
+<p>(1) 终端用户的请求。当终端用户在自己的程序运行期间发现有可疑问题时，希望暂时使自己的程序静止下来。亦即，使正在执行的进程暂停执行；若此时用户进程正处于就绪状态而未执行，则该进程暂不接受调度，以便用户研究其执行情况或对程序进行修改。我们把这种静止状态称为挂起状态。 　</p>
+<p>(2) 父进程请求。有时父进程希望挂起自己的某个子进程，以便考查和修改该子进程，或者协调各子进程间的活动。</p>
+<p>(3) 负荷调节的需要。当实时系统中的工作负荷较重，已可能影响到对实时任务的控制时，可由系统把一些不重要的进程挂起，以保证系统能正常运行。</p>
+<p>(4) 操作系统的需要。操作系统有时希望挂起某些进程，以便检查运行中的资源使用情况或进行记账。</p>
+<p><img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/1595575692716.png" alt="1595575692716"></p>
+<p>加上新建和结束态如下图所示：</p>
+<p><img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/1595575797155.png" alt="1595575797155"></p>
+<h3 id="3-3-4-JAVA线程池"><a href="#3-3-4-JAVA线程池" class="headerlink" title="3.3.4 JAVA线程池"></a>3.3.4 JAVA线程池</h3><h4 id="3-3-4-1-Executor-框架简介"><a href="#3-3-4-1-Executor-框架简介" class="headerlink" title="3.3.4.1 Executor 框架简介"></a>3.3.4.1 Executor 框架简介</h4><p>在 Java 5 之后，并发编程引入了一堆新的启动、调度和管理线程的API。Executor 框架便是 Java 5 中引入的，其内部使用了线程池机制，通过该框架来控制线程的启动、执行和关闭，可以简化并发编程的操作。因此，在 Java 5之后，通过 Executor 来启动线程比使用 Thread 的 start 方法更好，除了更易管理，效率更好（用线程池实现，节约开销）外。</p>
+<p>Executor 框架包括：线程池，Executor，Executors，ExecutorService，CompletionService，Future，Callable 等。</p>
+<p>ExecutorService 的生命周期包括三种状态：运行、关闭、终止。创建后便进入运行状态，当调用了 shutdown（）方法时，便进入关闭状态，此时意味着 ExecutorService 不再接受新的任务，但它还在执行已经提交了的任务，当素有已经提交了的任务执行完后，便到达终止状态。如果不调用 shutdown（）方法，ExecutorService 会一直处在运行状态，不断接收新的任务，执行新的任务，服务器端一般不需要关闭它，保持一直运行即可。</p>
+<p>Executors 提供了一系列工厂方法用于创先线程池，返回的线程池都实现了 ExecutorService 接口。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newFixedThreadPool(int nThreads)</span><br></pre></td></tr></table></figure>
+
+<p>创建固定数目线程的线程池。</p>
+<ul>
+<li>newFixedThreadPool 与 cacheThreadPool 差不多，也是能 reuse 就用，但不能随时建新的线程。</li>
+<li>其独特之处:任意时间点，最多只能有固定数目的活动线程存在，此时如果有新的线程要建立，只能放在另外的队列中等待，直到当前的线程中某个线程终止直接被移出池子。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newCachedThreadPool()</span><br></pre></td></tr></table></figure>
+
+<p>创建一个可缓存的线程池，调用execute将重用以前构造的线程（如果线程可用）。如果现有线程没有可用的，则创建一个新线 程并添加到池中。终止并从缓存中移除那些已有 60 秒钟未被使用的线程。</p>
+<ul>
+<li>缓存型池子，先查看池中有没有以前建立的线程，如果有，就 reuse 如果没有，就建一个新的线程加入池中</li>
+<li>缓存型池子通常用于执行一些生存期很短的异步型任务 因此在一些面向连接的 daemon 型 SERVER 中用得不多。但对于生存期短的异步任务，它是 Executor 的首选。</li>
+</ul>
+<p>能 reuse 的线程，必须是 timeout IDLE 内的池中线程，缺省 timeout 是 60s,超过这个 IDLE 时长，线程实例将被终止及移出池。</p>
+<blockquote>
+<p>注意，放入 CachedThreadPool 的线程不必担心其结束，超过 TIMEOUT 不活动，其会自动被终止。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newSingleThreadExecutor()</span><br></pre></td></tr></table></figure>
+
+<p>创建一个单线程化的Executor。单例线程，任意时间池中只能有一个线程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize)</span><br></pre></td></tr></table></figure>
+
+<p>调度型线程池:创建一个支持定时及周期性的任务执行的线程池，多数情况下可用来替代Timer类。</p>
+<p>这个池子里的线程可以按 schedule 依次 delay 执行，或周期执行</p>
+<p>一般来说，CachedTheadPool 在程序执行过程中通常会创建与所需数量相同的线程，然后在它回收旧线程时停止创建新线程，因此它是合理的 Executor 的首选，只有当这种方式会引发问题时（比如需要大量长时间面向连接的线程时），才需要考虑用 FixedThreadPool。</p>
+<p><strong>使用方法：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestCachedThreadPool</span></span>&#123;   </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;   </span><br><span class="line">        ExecutorService executorService = Executors.newCachedThreadPool();   </span><br><span class="line"><span class="comment">//      ExecutorService executorService = Executors.newFixedThreadPool(5);  </span></span><br><span class="line"><span class="comment">//      ExecutorService executorService = Executors.newSingleThreadExecutor();  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)&#123;   </span><br><span class="line">            executorService.execute(<span class="keyword">new</span> TestRunnable());   </span><br><span class="line">            System.out.println(<span class="string">"************* a"</span> + i + <span class="string">" *************"</span>);   </span><br><span class="line">        &#125;   </span><br><span class="line">        executorService.shutdown();   </span><br><span class="line">    &#125;   </span><br><span class="line">&#125;   </span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestRunnable</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;   </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;   </span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">"线程被调用了。"</span>);   </span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>提交任务</strong></p>
+<p>我们可以使用execute提交的任务，但是execute方法没有返回值，所以无法判断任务是否被线程池执行成功。通过以下代码可知execute方法输入的任务是一个Runnable类的实例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">threadsPool.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>我们也可以使用submit 方法来提交任务，它会返回一个future,那么我们可以通过这个future来判断任务是否执行成功，通过future的get方法来获取返回值，get方法会阻塞住直到任务完成，而使用get(long timeout, TimeUnit unit)方法则会阻塞一段时间后立即返回，这时有可能任务没有执行完。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Future&lt;Object&gt; future = executor.submit(harReturnValuetask);</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">     Object s = future.get();</span><br><span class="line">&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">    <span class="comment">// 处理中断异常</span></span><br><span class="line">&#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</span><br><span class="line">    <span class="comment">// 处理无法执行任务异常</span></span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="comment">// 关闭线程池</span></span><br><span class="line">    executor.shutdown();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>线程池的关闭</strong></p>
+<p>我们可以通过调用线程池的shutdown或shutdownNow方法来关闭线程池，它们的原理是遍历线程池中的工作线程，然后逐个调用线程的interrupt方法来中断线程，所以无法响应中断的任务可能永远无法终止。但是它们存在一定的区别，shutdownNow首先将线程池的状态设置成STOP，然后尝试停止所有的正在执行或暂停任务的线程，并返回等待执行任务的列表，而shutdown只是将线程池的状态设置成SHUTDOWN状态，然后中断所有没有正在执行任务的线程。</p>
+<p>只要调用了这两个关闭方法的其中一个，isShutdown方法就会返回true。当所有的任务都已关闭后,才表示线程池关闭成功，这时调用isTerminaed方法会返回true。至于我们应该调用哪一种方法来关闭线程池，应该由提交到线程池的任务特性决定，通常调用shutdown来关闭线程池，如果任务不一定要执行完，则可以调用shutdownNow。</p>
+<h4 id="3-3-4-2-自定义线程池"><a href="#3-3-4-2-自定义线程池" class="headerlink" title="3.3.4.2 自定义线程池"></a>3.3.4.2 自定义线程池</h4><p><strong>概述</strong></p>
+<p>自定义线程池，可以用 ThreadPoolExecutor 类创建，它有多个构造方法来创建线程池，用该类很容易实现自定义的线程池：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span>  ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit,runnableTaskQueue, handler);</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>corePoolSize（线程池的基本大小）：当提交一个任务到线程池时，线程池会创建一个线程来执行任务，即使其他空闲的基本线程能够执行新任务也会创建线程，等到需要执行的任务数大于线程池基本大小时就不再创建。如果调用了线程池的prestartAllCoreThreads方法，线程池会提前创建并启动所有基本线程。</p>
+</li>
+<li><p>maximumPoolSize（线程池最大大小）：线程池允许创建的最大线程数。如果队列满了，并且已创建的线程数小于最大线程数，则线程池会再创建新的线程执行任务。值得注意的是如果使用了无界的任务队列这个参数就没什么效果。</p>
+</li>
+<li><p>keepAliveTime（线程活动保持时间）：线程池的工作线程空闲后，保持存活的时间。所以如果任务很多，并且每个任务执行的时间比较短，可以调大这个时间，提高线程的利用率。超过保活时间仍没有任务到达时，该线程就会被结束。</p>
+</li>
+<li><p>TimeUnit（线程活动保持时间的单位）：可选的单位有天（DAYS），小时（HOURS），分钟（MINUTES），毫秒(MILLISECONDS)，微秒(MICROSECONDS, 千分之一毫秒)和毫微秒(NANOSECONDS, 千分之一微秒)。</p>
+</li>
+<li><p>runnableTaskQueue（任务队列）：用于保存等待执行的任务的阻塞队列。 可以选择以下几个阻塞队列。</p>
+<ul>
+<li>ArrayBlockingQueue：是一个基于数组结构的有界阻塞队列，此队列按 FIFO（先进先出）原则对元素进行排序。</li>
+<li>LinkedBlockingQueue：一个基于链表结构的阻塞队列，此队列按FIFO （先进先出） 排序元素，吞吐量通常要高于ArrayBlockingQueue。静态工厂方法Executors.newFixedThreadPool()使用了这个队列。</li>
+<li>SynchronousQueue：一个不存储元素的阻塞队列。每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQueue，静态工厂方法Executors.newCachedThreadPool使用了这个队列。</li>
+<li>PriorityBlockingQueue：一个具有优先级的无限阻塞队列</li>
+</ul>
+</li>
+<li><p>RejectedExecutionHandler（饱和策略）：当队列和线程池都满了，说明线程池处于饱和状态，那么必须采取一种策略处理提交的新任务。这个策略默认情况下是AbortPolicy，表示无法处理新任务时抛出异常。以下是JDK1.5提供的四种策略。</p>
+<ul>
+<li>AbortPolicy：直接抛出异常。</li>
+<li>CallerRunsPolicy：只用调用者所在线程来运行任务。</li>
+<li>DiscardOldestPolicy：丢弃队列里最近的一个任务，并执行当前任务。</li>
+<li>DiscardPolicy：不处理，丢弃掉。</li>
+</ul>
+</li>
+</ol>
+<p><strong>流程分析：</strong></p>
+<p>线程池的主要工作流程如下图：</p>
+<p><img src="%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.assets/1595577255545.png" alt="1595577255545"></p>
+<p>从上图我们可以看出，当提交一个新任务到线程池时，线程池的处理流程如下：</p>
+<ul>
+<li>首先线程池判断基本线程池是否已满？没满，创建一个工作线程来执行任务。满了，则进入下个流程。</li>
+<li>其次线程池判断工作队列是否已满？没满，则将新提交的任务存储在工作队列里。满了，则进入下个流程。</li>
+<li>最后线程池判断整个线程池是否已满？没满，则创建一个新的工作线程来执行任务，满了，则交给饱和策略来处理这个任务。</li>
+</ul>
+<p><strong>使用方法</strong></p>
+<p>新建一个线程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String command;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TestThread</span><span class="params">(String s)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.command=s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">" Start. Command = "</span>+command);</span><br><span class="line">        processCommand();</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">" End."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processCommand</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    BlockingQueue queue = <span class="keyword">new</span> LinkedBlockingQueue();</span><br><span class="line">    ThreadPoolExecutor executor = <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, TimeUnit.DAYS, queue);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</span><br><span class="line">        Runnable worker = <span class="keyword">new</span> TestThread(<span class="string">""</span> + i);</span><br><span class="line">        executor.execute(worker);</span><br><span class="line">    &#125;</span><br><span class="line">    executor.shutdown();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/07/24/%E6%AD%BB%E9%94%81%E5%92%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B/%E6%AD%BB%E9%94%81%E5%92%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-01Markdown学习" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
